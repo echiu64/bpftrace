@@ -19,7 +19,7 @@
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #include <bpf/btf.h>
 #pragma GCC diagnostic pop
-#include <bpf/libbpf.h>
+#include <bcc/libbpf.h>
 
 namespace bpftrace {
 

@@ -14,10 +14,11 @@ find_path (LIBBPF_INCLUDE_DIRS
   NAMES
     bpf/bpf.h
     bpf/btf.h
-    bpf/libbpf.h
+    bcc/libbpf.h
   PATHS
     /usr/include
     /usr/local/include
+    /usr/local/include/bcc
     /opt/local/include
     /sw/include
     ENV CPATH)
