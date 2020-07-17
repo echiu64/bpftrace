@@ -1,4 +1,4 @@
-#include <bcc/libbpf.h>
+#include <libbpf.h>
 #include <bpffeature.h>
 #include <cstddef>
 #include <cstdio>

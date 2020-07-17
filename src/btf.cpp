@@ -17,9 +17,10 @@
 #include <linux/btf.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-#include <bpf/btf.h>
+#include <bcc/btf.h>
 #pragma GCC diagnostic pop
 #include <bcc/libbpf.h>
+#include <libbpf.h>
 
 namespace bpftrace {
 

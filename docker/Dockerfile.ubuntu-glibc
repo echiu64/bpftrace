@@ -5,7 +5,7 @@ ARG BASE
 ARG LLVM_VERSION="8"
 ARG CMAKE_VER="3.16"
 ARG CMAKE_BUILD="2"
-ARG bcc_ref="v0.12.0"
+ARG bcc_ref="v0.14.0"
 ARG bcc_org="iovisor"
 
 ENV LLVM_VERSION=$LLVM_VERSION
@@ -21,6 +21,8 @@ deb http://apt.llvm.org/${BASE}/ llvm-toolchain-${BASE}-${LLVM_VERSION} main\n\
 deb-src http://apt.llvm.org/${BASE}/ llvm-toolchain-${BASE}-${LLVM_VERSION} main\n" &&\
     echo $llvmRepository >> /etc/apt/sources.list && \
     curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
       bison \
@@ -45,6 +47,12 @@ RUN apt-get update && apt-get install -y \
       systemtap-sdt-dev \
       python3 \
       quilt
+
+#RUN apt-get install -yq \
+#  linux-image-5.4.0-40-generic
+#
+#RUN apt-get install -y \
+#  linux-headers-5.4.0-40-generic
 
 # Install from source if using xenial due to incompatibility with older cmake
 RUN if [ "${BASE}" = "xenial" ]; then \
@@ -77,13 +85,23 @@ RUN if [ "${BASE}" = "xenial" ]; then \
 RUN mkdir -p /src && git clone https://github.com/$bcc_org/bcc /src/bcc
 
 RUN cd /src/bcc && git checkout $bcc_ref && git submodule update && \
-    mkdir build && cd build && \
+    mkdir build && cd build
+
+RUN cd /src/bcc/build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../ && make -j$(nproc) && \
     make install &&  mkdir -p /usr/local/lib && \
     cp src/cc/libbcc.a /usr/local/lib/libbcc.a && \
     cp src/cc/libbcc-loader-static.a /usr/local/lib/libbcc-loader-static.a && \
     cp ./src/cc/libbcc_bpf.a /usr/local/lib/libbpf.a && \
     cp ./src/cc/libbcc_bpf.a /usr/local/lib/libbcc_bpf.a
+
+RUN cd /src/bcc && \
+  cp /src/bcc/src/cc/libbpf/src/libbpf.h /usr/local/include/libbpf.h && \
+  cp /src/bcc/src/cc/libbpf.h /usr/local/include/bcc/libbpf.h && \
+  cp /src/bcc/src/cc/libbpf/src/libbpf_common.h /usr/local/include/libbpf_common.h && \
+  cp /src/bcc/src/cc/libbpf/src/btf.h /usr/local/include/bcc/btf.h
+
+#RUN apt-get install -y linux-headers-virtual
 
 COPY build.sh /build.sh
 RUN chmod 755 /build.sh

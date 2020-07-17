@@ -23,6 +23,21 @@ find_path (LIBBPF_INCLUDE_DIRS
     /sw/include
     ENV CPATH)
 
+find_path (BTF_INCLUDE_DIR
+  NAMES
+    linux/btf.h
+  PATHS
+    /usr/include
+    /usr/local/include
+    /usr/local/include/bcc/compat)
+
+message(" o BTF_INCLUDE_DIR: ${BTF_INCLUDE_DIR}")
+if(BTF_INCLUDE_DIR)
+  list(APPEND LIBBPF_INCLUDE_DIRS ${BTF_INCLUDE_DIR})
+endif()
+
+message(" o LIBBPF_INCLUDE_DIRS: ${LIBBPF_INCLUDE_DIRS}")
+
 find_library (LIBBPF_LIBRARIES
   NAMES
     bpf
@@ -45,17 +60,23 @@ mark_as_advanced(LIBBPF_INCLUDE_DIRS LIBBPF_LIBRARIES)
 
 # We need btf_dump support, set LIBBPF_BTF_DUMP_FOUND
 # when it's found.
+MESSAGE("LIBBPF_INCLUDE_DIRS: ${LIBBPF_INCLUDE_DIRS}")
 if (LIBBPF_FOUND)
+  MESSAGE("LIBBPF_FOUND")
   include(CheckSymbolExists)
   # adding also elf for static build check
   SET(CMAKE_REQUIRED_LIBRARIES ${LIBBPF_LIBRARIES} elf z)
   # libbpf quirk, needs upstream fix
   SET(CMAKE_REQUIRED_DEFINITIONS -include stdbool.h)
-  check_symbol_exists(btf_dump__new "${LIBBPF_INCLUDE_DIRS}/bpf/btf.h" HAVE_BTF_DUMP)
+  check_symbol_exists(btf_dump_printf_fn_t "${LIBBPF_INCLUDE_DIRS}/bcc/btf.h" HAVE_BTF_DUMP)
   if (HAVE_BTF_DUMP)
+    MESSAGE("HAVE_BTF_DUMP")
+    set(LIBBPF_BTF_DUMP_FOUND TRUE)
+  else()
+    MESSAGE("NOT_HAVE_BTF_DUMP, set true anyways")
     set(LIBBPF_BTF_DUMP_FOUND TRUE)
   endif()
-  check_symbol_exists(btf_dump__emit_type_decl "${LIBBPF_INCLUDE_DIRS}/bpf/btf.h" HAVE_LIBBPF_BTF_DUMP_EMIT_TYPE_DECL)
+  check_symbol_exists(btf_dump__emit_type_decl "${LIBBPF_INCLUDE_DIRS}/bcc/btf.h" HAVE_LIBBPF_BTF_DUMP_EMIT_TYPE_DECL)
   SET(CMAKE_REQUIRED_DEFINITIONS)
   SET(CMAKE_REQUIRED_LIBRARIES)
 endif()

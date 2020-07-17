@@ -1,3 +1,8 @@
+# btf support
+
+BTF support bludgeoned into a working docker build. See `build.sh` for a working
+build using ubuntu bionic, LLVM 8, embedded clang.
+
 # bpftrace
 
 [![Build Status](https://github.com/iovisor/bpftrace/workflows/CI/badge.svg?branch=master)](https://github.com/iovisor/bpftrace/actions?query=workflow%3ACI+branch%3Amaster)
